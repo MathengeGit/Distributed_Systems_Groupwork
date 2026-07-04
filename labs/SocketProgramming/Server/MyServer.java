@@ -1,21 +1,22 @@
 package labs.SocketProgramming.Server;
+
 import java.net.*;
 import java.io.*;
 
 public class MyServer {
     public static void main(String[] args) throws Exception {
-        // Creating a port for communication [cite: 33]
+        // Creating a port for communication 
         ServerSocket ss = new ServerSocket(5555);
         System.out.println("Server Initiated, Waiting for Client to Connect...");
 
-        // Binding Client and Server on port 5555 [cite: 34]
+        // Binding Client and Server on port 5555 
         Socket s = ss.accept();
         System.out.println("Client Connected");
 
-        // Reading input from KeyBoard [cite: 35]
+        // Reading input from KeyBoard 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         
-        // Output and Input streams [cite: 35, 37]
+        // Output and Input streams 
         OutputStream ostream = s.getOutputStream();
         PrintWriter pw = new PrintWriter(ostream, true);
         InputStream istream = s.getInputStream();
@@ -23,19 +24,19 @@ public class MyServer {
 
         String clientMessage = "", serverMessage = "";
         while (true) {
-            // Read client message [cite: 39]
+            // Read client message 
             clientMessage = receive.readLine();
             System.out.println("Client: " + clientMessage);
             if (clientMessage.equals("bye")) break;
 
-            // Server writing message [cite: 40]
+            // Server writing message 
             System.out.print("Server: ");
             serverMessage = br.readLine();
             pw.println(serverMessage);
             if (serverMessage.equals("bye")) break;
         }
         
-        // Closing all connections [cite: 42]
+        // Closing all connections 
         s.close();
         ss.close();
         istream.close();
