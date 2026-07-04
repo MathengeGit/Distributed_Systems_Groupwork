@@ -1,5 +1,5 @@
 
-package labs.SocketProgramming;
+package labs.SocketProgramming.Client;
 
 import java.net.*;
 import java.io.*;

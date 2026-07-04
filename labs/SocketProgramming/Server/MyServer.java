@@ -1,4 +1,4 @@
-package labs.SocketProgramming;
+package labs.SocketProgramming.Server;
 import java.net.*;
 import java.io.*;
 
