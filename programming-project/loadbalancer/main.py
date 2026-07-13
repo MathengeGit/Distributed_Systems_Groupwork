@@ -18,12 +18,14 @@ N = int(os.environ.get("N", 3))
 SERVER_IMAGE = os.environ.get("SERVER_IMAGE", "server:latest")
 NETWORK = os.environ.get("NETWORK", "net1")
 SERVER_PORT = 5000
+GRACE_PERIOD_SECONDS = 8  # don't heartbeat-check a container until it's had time to boot
 
 chm = ConsistentHashMap(M=M, K=K)
 lock = threading.Lock()
 docker_client = docker.from_env()
 
 server_num_ids = {}
+server_spawn_time = {}
 _next_num_id = 1
 
 
@@ -42,6 +44,7 @@ def _spawn_container(hostname: str):
         detach=True,
     )
     server_num_ids[hostname] = _next_num_id
+    server_spawn_time[hostname] = time.time()
     _next_num_id += 1
     chm.add_server(server_num_ids[hostname], hostname)
 
@@ -55,6 +58,7 @@ def _remove_container(hostname: str):
         pass
     chm.remove_server(hostname)
     server_num_ids.pop(hostname, None)
+    server_spawn_time.pop(hostname, None)
 
 
 def _bootstrap(n_initial: int):
@@ -69,6 +73,8 @@ def _heartbeat_loop():
         with lock:
             hostnames = chm.servers()
         for hostname in hostnames:
+            if time.time() - server_spawn_time.get(hostname, 0) < GRACE_PERIOD_SECONDS:
+                continue  # still starting up, give it time before judging it dead
             try:
                 r = requests.get(f"http://{hostname}:{SERVER_PORT}/heartbeat", timeout=2)
                 ok = r.status_code == 200
@@ -159,7 +165,11 @@ def route_request(path):
 
     try:
         r = requests.get(f"http://{hostname}:{SERVER_PORT}/{path}", timeout=3)
-        return (r.text, r.status_code, {"Content-Type": "application/json"})
+        if r.status_code == 200:
+            return (r.text, 200, {"Content-Type": "application/json"})
+        else:
+            return jsonify({"message": f"<Error> '/{path}' endpoint does not exist in server replicas",
+                             "status": "failure"}), 400
     except requests.RequestException:
         return jsonify({"message": f"<Error> '/{path}' endpoint does not exist in server replicas",
                          "status": "failure"}), 400
