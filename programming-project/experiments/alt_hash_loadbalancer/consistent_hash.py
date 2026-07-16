@@ -8,22 +8,19 @@ PHI(i,j) = server-mapping hash:    i^2 + j^2 + 2*j + 25
 
 Collisions are resolved with linear probing (clockwise) on the ring.
 """
+#Hash functions for consistent hashing, using MD5 for better distribution and fewer collisions.
+import hashlib
 
 
 def H(request_id: int, M: int) -> int:
-    return (request_id ** 2 + 2 * request_id + 17) % M
+    digest = hashlib.md5(str(request_id).encode()).hexdigest()
+    return int(digest, 16) % M
 
 
 def PHI(server_num_id: int, replica_id: int, M: int) -> int:
-    return (server_num_id ** 2 + replica_id ** 2 + 2 * replica_id + 25) % M
-"""
+    digest = hashlib.md5(f"{server_num_id}-{replica_id}".encode()).hexdigest()
+    return int(digest, 16) % M
 
-def H(request_id: int, M: int) -> int:
-    return (request_id ** 2 + 3 * request_id + 11) % M
-
-
-def PHI(server_num_id: int, replica_id: int, M: int) -> int:
-    return (server_num_id ** 3 + replica_id ** 2 + 5 * replica_id + 7) % M """
 
 
 class ConsistentHashMap:

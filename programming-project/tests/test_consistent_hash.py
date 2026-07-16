@@ -1,3 +1,5 @@
+import sys, os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'loadbalancer'))
 from consistent_hash import ConsistentHashMap
 
 chm = ConsistentHashMap()
