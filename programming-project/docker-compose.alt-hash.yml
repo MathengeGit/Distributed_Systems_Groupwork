@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  loadbalancer-alt:
+    build: ./experiments/alt_hash_loadbalancer
+    image: loadbalancer-alt:latest
+    container_name: loadbalancer
+    ports:
+      - "5000:5000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
+    environment:
+      M: "512"
+      K: "9"
+      N: "3"
+      SERVER_IMAGE: "server:latest"
+      NETWORK: "net1"
+    networks:
+      net1:
+        aliases:
+          - loadbalancer
+    depends_on:
+      server-image-builder:
+        condition: service_completed_successfully
+
+  server-image-builder:
+    build: ./server
+    image: server:latest
+    container_name: server_image_builder
+    command: ["true"]
+    networks:
+      - net1
+
+networks:
+  net1:
+    name: net1
+    driver: bridge
