@@ -11,8 +11,8 @@ Distributed Systems, based on the assignment brief in this repository.
 ## Team & Contributions
 - Muriuki Nelly Nkatha — 160761
 - Riang'a Ravine Kerubo — 168669
-- Mathenge Gitahi — 
-- Akinyi Stacy — 
+- Mathenge Gitahi — 166078
+- Akinyi Stacy — 168327
 
 
 ## Repository Structure
